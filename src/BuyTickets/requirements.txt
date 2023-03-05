@@ -1,0 +1,11 @@
+fastapi~=0.88.0
+uvicorn~=0.20.0
+pydantic[dotenv]~=1.10.4
+sqlalchemy~=1.4.46
+fastapi-users[slqalchemy]
+python-multipart
+python-jose[cryptography]
+passlib[bcrypt]~=1.7.4
+jose
+alembic
+psycopg2-binary

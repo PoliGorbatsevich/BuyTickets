@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  app:
+    container_name: "app"
+    hostname: BuyTickets
+    image: app
+    build:
+      context: BuyTickets
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+
+  db:
+    hostname: pghost
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER = postgres
+      - POSTGRES_PASSWORD = postgres
+      - POSTGRES_DB = postgres
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+volumes:
+  postgres_data:
