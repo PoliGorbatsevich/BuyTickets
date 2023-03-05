@@ -1,24 +1,27 @@
-from fastapi import APIRouter, HTTPException, Path, Depends
+from fastapi import APIRouter, Depends
 
-from BuyTickets.schemas import RequestTicket, CreateTicketSchema, Response, UpdateTicketSchema
+from BuyTickets.schemas.ticket import CreateTicketSchema, Response, UpdateTicketSchema
 from BuyTickets.database import get_session
 from sqlalchemy.orm import Session
-from BuyTickets.services import ticket_service
+from BuyTickets.services.ticket_service import TicketService
 
 router = APIRouter(prefix='/ticket')
 
 
 @router.post(path='/create')
-async def create_ticket(request: CreateTicketSchema, db: Session = Depends(get_session)):
-    ticket_service.create_ticket(db=db, ticket=request)
+async def create_ticket(request: CreateTicketSchema,
+                        service: TicketService = Depends(),
+                        db: Session = Depends(get_session)):
+    service.create_ticket(db=db, ticket=request)
     return Response(code=200,
                     status='Ok',
                     message='Ticket created successfully').dict(exclude_none=True)
 
 
 @router.get(path='/')
-async def get_tickets(db: Session = Depends(get_session)):
-    _ticket = ticket_service.get_ticket(db=db, skip=0, limit=100)
+async def get_tickets(service: TicketService = Depends(),
+                      db: Session = Depends(get_session)):
+    _ticket = service.get_ticket(db=db, skip=0, limit=100)
     return Response(code=200,
                     status='Ok',
                     message='Success Fetch all data',
@@ -26,8 +29,10 @@ async def get_tickets(db: Session = Depends(get_session)):
 
 
 @router.get(path='/{ticket_id}')
-async def get_ticket_by_id(ticket_id: int, db: Session = Depends(get_session)):
-    _ticket = ticket_service.get_ticket_by_id(db=db, ticket_id=ticket_id)
+async def get_ticket_by_id(ticket_id: int,
+                           service: TicketService = Depends(),
+                           db: Session = Depends(get_session)):
+    _ticket = service.get_ticket_by_id(db=db, ticket_id=ticket_id)
     return Response(code=200,
                     status='Ok',
                     message='Success get data',
@@ -35,8 +40,11 @@ async def get_ticket_by_id(ticket_id: int, db: Session = Depends(get_session)):
 
 
 @router.post(path='/update/{ticket_id}')
-async def update_ticket(ticket_id: int, request: UpdateTicketSchema, db: Session = Depends(get_session)):
-    _ticket = ticket_service.update_ticket(db=db, ticket_id=ticket_id, ticket=request)
+async def update_ticket(ticket_id: int,
+                        request: UpdateTicketSchema,
+                        service: TicketService = Depends(),
+                        db: Session = Depends(get_session)):
+    _ticket = service.update_ticket(db=db, ticket_id=ticket_id, ticket=request)
     return Response(code=200,
                     status='Ok',
                     message='Success update data',
@@ -44,8 +52,10 @@ async def update_ticket(ticket_id: int, request: UpdateTicketSchema, db: Session
 
 
 @router.delete(path='/{delete}')
-async def delete_ticket(ticket_id: int, db: Session = Depends(get_session)):
-    ticket_service.remove_ticket(db=db, ticket_id=ticket_id)
+async def delete_ticket(ticket_id: int,
+                        service: TicketService = Depends(),
+                        db: Session = Depends(get_session)):
+    service.remove_ticket(db=db, ticket_id=ticket_id)
     return Response(code=200,
                     status='Ok',
                     message='Success delete data').dict(exclude_none=True)

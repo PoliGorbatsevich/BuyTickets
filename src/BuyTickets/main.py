@@ -3,6 +3,7 @@ from fastapi import FastAPI
 
 from BuyTickets.models import ticket
 from BuyTickets.views.ticket import router as ticket_router
+from BuyTickets.views.auth import router as auth_router
 from BuyTickets.database import engine
 
 ticket.Base.metadata.create_all(bind=engine)
@@ -10,6 +11,7 @@ ticket.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 app.include_router(ticket_router)
+app.include_router(auth_router)
 
 
 if __name__ == '__main__':

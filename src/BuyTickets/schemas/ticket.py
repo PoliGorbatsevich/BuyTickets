@@ -36,8 +36,3 @@ class Response(GenericModel, Generic[T]):
     status: str
     message: str
     result: T | None
-
-
-
-
-

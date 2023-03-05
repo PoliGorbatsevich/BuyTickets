@@ -9,7 +9,3 @@ class Ticket(Base):
     performance = Column(String, )
     description = Column(String, )
     price = Column(Integer, )
-
-
-
-
