@@ -9,6 +9,7 @@ from BuyTickets.database import get_session
 from BuyTickets.models.auth import User
 from BuyTickets.settings import settings
 from BuyTickets.schemas.auth import UserRegistrationSchema, TokenDataSchema
+from BuyTickets.enums import Role
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -19,7 +20,7 @@ class AuthService:
 
     def _get_user(self, username: str) -> User:
         user = (self.session.query(User)
-                .filter_by(username=username)
+                .filter(User.username == username)
                 .first())
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -94,18 +95,35 @@ class AuthService:
 
     def create_user(self, user_data: UserRegistrationSchema) -> User:
         operation = (self.session.query(User)
-                     .filter_by(username=user_data.username)
+                     .filter(User.username == user_data.username)
                      .first())
         if operation:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
         operation = (self.session.query(User)
-                     .filter_by(email=user_data.email)
+                     .filter(User.email == user_data.email)
                      .first())
         if operation:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-        user_data.hashed_password = self._get_password_hash(user_data.hashed_password)
-        user = User(**user_data.dict())
+        user = User(username=user_data.username,
+                    email=user_data.email,
+                    hashed_password=self._get_password_hash(user_data.password))
         self.session.add(user)
         self.session.commit()
         return user
+
+
+class RoleChecker:
+    def __init__(self, allowed_roles: list):
+        self.allowed_roles = allowed_roles
+
+    def __call__(self, token: str = Depends(settings.oauth2_scheme), service: AuthService = Depends()):
+        user = service.get_current_active_user(token=token)
+        if user.role not in self.allowed_roles:
+            raise HTTPException(status_code=403, detail="Operation not permitted")
+
+
+admin_permission = RoleChecker([Role.ADMIN])
+manager_permission = RoleChecker([Role.MANAGER])
+admin_manager_permission = RoleChecker([Role.MANAGER, Role.ADMIN])
+auth_permission = RoleChecker([Role.USER, Role.ADMIN, Role.MANAGER])

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordRequestForm
 
 from BuyTickets.schemas.auth import UserSchema, TokenSchema, UserRegistrationSchema
 from BuyTickets.services.auth_service import AuthService
