@@ -5,7 +5,7 @@ from BuyTickets.schemas.auth import UserSchema, TokenSchema, UserRegistrationSch
 from BuyTickets.services.auth_service import AuthService
 from BuyTickets.settings import settings
 
-router = APIRouter(prefix='/auth')
+router = APIRouter(prefix='/auth', tags=["authentication"])
 
 
 @router.post('/registration', response_model=UserSchema)
@@ -25,3 +25,4 @@ def get_token(form_data: OAuth2PasswordRequestForm = Depends(),
 def read_users_me(service: AuthService = Depends(),
                   token: str = Depends(settings.oauth2_scheme)):
     return service.get_current_active_user(token)
+

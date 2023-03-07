@@ -1,13 +1,13 @@
+import datetime
+
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
 
 from BuyTickets.schemas.ticket import CreatePerformanceSchema, Response, UpdatePerformanceSchema
-from BuyTickets.database import get_session
 from BuyTickets.services.performance_service import PerformanceService
 from BuyTickets.services.auth_service import admin_permission, auth_permission, admin_manager_permission
 from BuyTickets.services.ticket_service import TicketService
 
-router = APIRouter(prefix='/performance')
+router = APIRouter(prefix='/performance', tags=["performance"])
 
 
 @router.post(path='/create', dependencies=[Depends(admin_manager_permission)])
@@ -16,11 +16,9 @@ async def create_performance(row_count: int,
                              price: int,
                              request: CreatePerformanceSchema,
                              service: PerformanceService = Depends(),
-                             ticket_service: TicketService = Depends(),
-                             db: Session = Depends(get_session)):
-    _performance = service.create_performance(db=db, performance=request)
-    ticket_service.create_all_tickets(db=db,
-                                      performance_id=_performance.id,
+                             ticket_service: TicketService = Depends()):
+    _performance = service.create_performance(performance=request)
+    ticket_service.create_all_tickets(performance_id=_performance.id,
                                       row_length=row_length,
                                       row_count=row_count,
                                       price=price)
@@ -30,10 +28,10 @@ async def create_performance(row_count: int,
                     message='Performance created successfully').dict(exclude_none=True)
 
 
-@router.get(path='/', dependencies=[Depends(auth_permission)])
-async def get_performances(service: PerformanceService = Depends(),
-                           db: Session = Depends(get_session)):
-    _performance = service.get_performance(db=db, skip=0, limit=100)
+@router.get(path='/playbill/', dependencies=[Depends(auth_permission)])
+async def get_performances_by_date(date: datetime.date,
+                                   service: PerformanceService = Depends()):
+    _performance = service.get_performance_by_date(date=date)
     return Response(code=200,
                     status='Ok',
                     message='Success Fetch all data',
@@ -42,9 +40,8 @@ async def get_performances(service: PerformanceService = Depends(),
 
 @router.get(path='/{performance_id}', dependencies=[Depends(auth_permission)])
 async def get_performance_by_id(performance_id: int,
-                                service: PerformanceService = Depends(),
-                                db: Session = Depends(get_session)):
-    _performance = service.get_performance_by_id(db=db, performance_id=performance_id)
+                                service: PerformanceService = Depends()):
+    _performance = service.get_performance_by_id(performance_id=performance_id)
     return Response(code=200,
                     status='Ok',
                     message='Success get data',
@@ -54,9 +51,8 @@ async def get_performance_by_id(performance_id: int,
 @router.post(path='/{performance_id}/update', dependencies=[Depends(admin_manager_permission)])
 async def update_performance(performance_id: int,
                              request: UpdatePerformanceSchema,
-                             service: PerformanceService = Depends(),
-                             db: Session = Depends(get_session)):
-    _performance = service.update_performance(db=db, performance_id=performance_id, performance=request)
+                             service: PerformanceService = Depends()):
+    _performance = service.update_performance(performance_id=performance_id, performance=request)
     return Response(code=200,
                     status='Ok',
                     message='Success update data',
@@ -65,19 +61,17 @@ async def update_performance(performance_id: int,
 
 @router.delete(path='/{performance_id}/delete', dependencies=[Depends(admin_manager_permission)])
 async def delete_performance(performance_id: int,
-                             service: PerformanceService = Depends(),
-                             db: Session = Depends(get_session)):
-    service.remove_performance(db=db, performance_id=performance_id)
+                             service: PerformanceService = Depends()):
+    service.remove_performance(performance_id=performance_id)
     return Response(code=200,
                     status='Ok',
                     message='Success delete data').dict(exclude_none=True)
 
 
-@router.get(path='/{performance_id}/tickets', dependencies=[Depends(auth_permission)])
+@router.get(path='/{performance_id}/ticket', dependencies=[Depends(auth_permission)])
 async def get_performance_tickets(performance_id: int,
-                                  service: PerformanceService = Depends(),
-                                  db: Session = Depends(get_session)):
-    _tickets = service.get_performance_by_id(db=db, performance_id=performance_id).tickets
+                                  service: PerformanceService = Depends()):
+    _tickets = service.get_performance_by_id(performance_id=performance_id).tickets
     return Response(code=200,
                     status='Ok',
                     message='Success delete data',

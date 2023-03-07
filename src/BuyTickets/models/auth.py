@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, Table, ForeignKey, Enum
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Column, Integer, String, Boolean, Enum
+from sqlalchemy.orm import relationship
 
 from BuyTickets.enums import Role
 from BuyTickets.database import Base
@@ -14,5 +14,6 @@ class User(Base):
     email = Column(String)
     role = Column(Enum(Role), default=Role.USER)
     hashed_password = Column(String)
+    balance = Column(Integer, default=0)
 
     tickets = relationship("Ticket", back_populates="owner")

@@ -6,34 +6,11 @@ from pydantic.generics import GenericModel
 
 T = TypeVar("T")
 
-# class Ticket(Base):
-#     __tablename__ = "ticket"
-#
-#     id = Column(Integer, primary_key=True, index=True, unique=True)
-#     price = Column(Integer, )
-#     place_number = Column(Integer, )
-#     row_number = Column(Integer, )
-#
-#     performance_id = Column(Integer, ForeignKey("performance.id"))
-#
-#
-# class Performance(Base):
-#     __tablename__ = "performance"
-#
-#     id = Column(Integer, primary_key=True, index=True, unique=True)
-#     name = Column(String, )
-#     description = Column(String, )
-#     date = Column(Date, )
-#     time = Column(Time, )
-#
-#     tickets = relationship("ticket")
-
 
 class BaseTicketSchema(BaseModel):
     place_number: int
     row_number: int
     price: int
-    performance_id: int
 
 
 class CreateTicketSchema(BaseTicketSchema):
@@ -47,6 +24,7 @@ class UpdateTicketSchema(BaseTicketSchema):
 class TicketSchema(BaseTicketSchema):
     id: int
     owner_id: int | None
+    performance_id: int
 
     class Config:
         orm_mode = True

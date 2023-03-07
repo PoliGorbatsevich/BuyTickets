@@ -15,6 +15,7 @@ class UserSchema(UserBaseSchema):
     hashed_password: str
     role: Role
     tickets: list[TicketSchema] | None
+    balance: int
 
     class Config:
         orm_mode = True

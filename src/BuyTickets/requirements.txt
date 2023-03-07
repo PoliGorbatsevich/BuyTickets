@@ -7,5 +7,4 @@ python-multipart
 python-jose[cryptography]
 passlib[bcrypt]~=1.7.4
 jose
-alembic
 psycopg2-binary

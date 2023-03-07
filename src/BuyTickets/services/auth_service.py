@@ -112,6 +112,20 @@ class AuthService:
         self.session.commit()
         return user
 
+    def change_password(self, token: str, old_pass: str, new_pass: str, new_pass1: str):
+        _user = self.get_current_active_user(token=token)
+        print(_user.hashed_password)
+        print(self._get_password_hash(old_pass))
+        if not self._verify_password(old_pass, _user.hashed_password):
+            raise HTTPException(status_code=404, detail="Wrong old password")
+        if new_pass != new_pass1:
+            raise HTTPException(status_code=404, detail="New password 1 and new password 2 is not equal!")
+        _user.hashed_password = self._get_password_hash(new_pass)
+
+        self.session.commit()
+        self.session.refresh(_user)
+        return _user
+
 
 class RoleChecker:
     def __init__(self, allowed_roles: list):
