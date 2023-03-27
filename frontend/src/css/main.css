@@ -1,0 +1,274 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;1,300&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+}
+body{
+    background-color: rgba(232, 217, 180, 0.67);
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+}
+
+.header{
+    background-color: rgb(59, 42, 42);
+    padding: 20px 40px;
+    font-size: 30px;
+    font-weight: 600;
+}
+
+main{
+    margin: 50px 100px;
+    width: 50%;
+    float: left;
+}
+
+main .performance{
+    margin-bottom: 50px;
+    padding: 20px;
+    background-color: rgba(215, 99, 31, 0.59);
+}
+
+main .profile{
+    margin-bottom: 50px;
+    padding: 20px;
+    background-color: rgba(215, 99, 31, 0.59);
+}
+
+main .ticket{
+    margin-bottom: 50px;
+    padding: 20px;
+    background-color: rgba(56, 50, 46, 0.59);
+}
+
+aside .ticket{
+    margin-bottom: 50px;
+    padding: 20px;
+    background-color: rgba(56, 50, 46, 0.59);
+}
+
+main .ticket-free{
+    margin-bottom: 50px;
+    padding: 20px;
+    background-color: rgba(158, 255, 118, 0.59);
+}
+
+
+aside{
+    width: 20%;
+    margin-top: 50px;
+    margin-left: 5%;
+    float: left;
+}
+
+aside button,
+form input,
+form textarea,
+form button{
+    width: 90%;
+    padding: 15px 5%;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    margin-bottom: 10px;
+    border: 0;
+    background-color: rgba(215, 99, 31, 0.59);
+    color: white;
+    outline: none;
+    font-size: 15px;
+}
+
+aside button,
+form button{
+    width: 100%;
+    cursor: pointer;
+    transition: transform 500ms ease;
+}
+
+
+aside button:hover,
+form button:hover{
+    transform: scale(1.02);
+}
+
+main .delete-icon{
+    float: right;
+    color: #000000;
+    cursor: pointer;
+    transform: scale(2);
+}
+
+aside .info-icon{
+    float: right;
+    margin-right: 25px;
+    color: #000000;
+    cursor: pointer;
+    transform: scale(2);
+}
+
+main .update-icon{
+    float: right;
+    margin-right: 25px;
+    color: deepskyblue;
+    cursor: pointer;
+    transform: scale(2);
+}
+
+main .buy-icon{
+    float: right;
+    margin-right: 25px;
+    color: #000000;
+    cursor: pointer;
+    transform: scale(2);
+}
+
+aside .buy-icon,
+aside .delete-icon,
+aside .update-icon{
+    opacity: 0.5;
+}
+
+aside .delete-icon{
+    float: right;
+    color: #000000;
+    cursor: pointer;
+    transform: scale(2);
+}
+
+aside .update-icon{
+    float: right;
+    margin-right: 25px;
+    color: deepskyblue;
+    cursor: pointer;
+    transform: scale(2);
+}
+
+aside .buy-icon{
+    float: right;
+    margin-right: 25px;
+    color: #000000;
+    cursor: pointer;
+    transform: scale(2);
+}
+
+aside .buy-icon,
+aside .delete-icon,
+aside .update-icon{
+    opacity: 0.5;
+}
+
+
+.performance form{
+    margin-top: 20px;
+}
+
+
+.performance form button:hover{
+    transform: scale(1.02);
+}
+
+.active{
+    color: gray;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    padding: 2rem;
+    background-color: rgba(0, 0, 0, 0.55);}
+
+.modal-content {
+    background-color: white;
+    max-height: 80%;
+    height: 80%;
+}
+
+.modal-title {
+    padding: 0 2.25rem;
+    height: 5rem;
+    max-height: 5rem;
+    text-transform: uppercase;
+    font-size: 1.8rem;
+}
+
+.modal-body {
+    height: calc(100% - 16rem);
+    overflow-y: scroll;
+    padding: 0 2rem;
+}
+
+.modal-footer {
+    height: 5rem;
+    max-height: 5rem;
+    padding: 0 2.25rem;
+}
+
+.dropdown-menu-container {
+    position: relative;
+    white-space: nowrap;
+    display: inline-flex;
+    margin-left: auto;
+    left: 85%;
+}
+
+.dropdown-menu-button {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    white-space: nowrap;
+    margin-left: auto;
+}
+
+.dropdown-menu-button span {
+    margin-right: 8px;
+    white-space: nowrap;
+}
+
+.dropdown-menu-list {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-top: none;
+    padding: 8px 0;
+    margin: 0;
+    list-style: none;
+    font-size: 16px;
+    white-space: nowrap;
+    text-decoration: none !important;
+    color: black;
+}
+
+.dropdown-menu-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    text-decoration: none !important;
+    color: black;
+}
+
+.dropdown-menu-item:hover {
+    background-color: #f2f2f2;
+    color: #000;
+}
+
+.base-block{
+    padding: 17px;
+    margin: 10px;
+    background-color: #9d9696;
+}
+
+.link{
+    color: white;
+    text-decoration: none !important
+}

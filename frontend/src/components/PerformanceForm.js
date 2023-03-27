@@ -1,50 +1,50 @@
 import React from "react";
 
-class AddPerformance extends React.Component{
-    addPerformance = {}
+class PerformanceForm extends React.Component{
+    performance = {}
     constructor(props) {
         super(props);
         this.state = {
-            name: "",
-            description: "",
-            date: "",
-            time: "",
-            rowCount: 1,
-            rowLength: 1,
         }
     }
     render(){
         return (
-            <form ref={(el) => this.MyForm = el}>
-                <input placeholder="Название пьесы"
-                       onChange={(e) => {this.setState({name: e.target.value})}}/>
-                <textarea placeholder="Описание"
-                          onChange={(e) => {this.setState({description: e.target.value})}}/>
-                <input placeholder="Дата"
-                       onChange={(e) => {this.setState({date: e.target.value})}}/>
-                <input placeholder="Время"
-                       onChange={(e) => {this.setState({time: e.target.value})}}/>
-                <input placeholder="Количество рядов"
-                       onChange={(e) => {this.setState({rowCount: e.target.value})}}/>
-                <input placeholder="Длина ряда"
-                       onChange={(e) => {this.setState({rowLength: e.target.value})}}/>
-                <button type="button" onClick={() => {
-                    this.MyForm.reset()
-                    this.addPerformance = {
-                        name: this.state.name,
-                        description: this.state.description,
-                        date: this.state.description,
-                        time: this.state.time,
-                        rowCount: this.state.rowCount,
-                        rowLength: this.state.rowLength
-                    }
-                    if (this.props.performance)
-                        this.addPerformance.id = this.props.performance.id
-                    this.props.onAdd(this.addPerformance)
-                }}>Добавить</button>
-            </form>
+            <div className="base-block">
+                <h2>Форма для добавления пьесы</h2>
+                <form ref={(el) => this.MyForm = el}>
+                    <input required placeholder="Название пьесы"
+                           onChange={(e) => {this.setState({name: e.target.value})}}/>
+                    <textarea required placeholder="Описание"
+                              onChange={(e) => {this.setState({description: e.target.value})}}/>
+                    <input required  type="date" placeholder="Дата"
+                           onChange={(e) => {this.setState({date: e.target.value})}}/>
+                    <input required type="time" placeholder="Время"
+                           onChange={(e) => {this.setState({time: e.target.value})}}/>
+                    <input required type="number" placeholder="Количество рядов 1-50" min="1" max="50"
+                           onChange={(e) => {this.setState({rowCount: e.target.value})}}/>
+                    <input required type="number" placeholder="Длина ряда" min="1" max="50"
+                           onChange={(e) => {this.setState({rowLength: e.target.value})}}/>
+                    <input required type="number" placeholder="Цена билета" min="1"
+                           onChange={(e) => {this.setState({price: e.target.value})}}/>
+                    <button type="button" onClick={() => {
+                        this.performance = {
+                            name: this.state.name,
+                            description: this.state.description,
+                            date: this.state.date,
+                            time: this.state.time,
+                        }
+                        this.props.onAdd(this.performance,
+                            this.state.price,
+                            this.state.rowLength,
+                            this.state.rowCount)
+                        this.MyForm.reset()
+                        this.setState({name:"", description:"", date:"", time:"", rowCount:-1, rowLength:-1, price:-1})
+                        this.performance = {}
+                    }}>Добавить</button>
+                </form>
+            </div>
         )
     }
 }
 
-export default AddPerformance
+export default PerformanceForm

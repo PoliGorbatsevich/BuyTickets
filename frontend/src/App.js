@@ -1,24 +1,32 @@
 import React from "react";
-import Header from "../Header";
-
-
-
+import Homepage from "./pages/Homepage";
+import Performancepage from "./pages/Performancepage"
+import UserProfilepage from "./pages/UserProfilepage"
+import NotFoundpage from "./pages/NotFoundpage";
+import Layout from "./components/Layout"
+import Authpage from "./pages/Authpage"
+import {
+    Routes,
+    Route,
+} from 'react-router-dom';
 
 class App extends React.Component {
-    helpText = "Helpp text!"
+
     render () {
         return (
-            <div className="Name">
-                <Header title=" MOI TITEL"/>
-                <h1>{this.helpText}</h1>
-                <input placeholder={this.helpText}
-                       onClick={this.inputClick} onMouseEnter={this.mouseOver}/>
-                <p>{this.helpText === "Help text!" ? "yes" : "no"}</p>
+            <div>
+                <Routes>
+                    <Route path='/' element={<Layout/>}>
+                        <Route index element = {<Homepage/>} />
+                        <Route path='/performance' element = {<Performancepage/>}/>
+                        <Route path='/user_profile' element = {<UserProfilepage/>} />
+                        <Route path='/auth' element = {<Authpage />}/>
+                        <Route path='*' element = {<NotFoundpage/>} />
+                    </Route>
+                </Routes>
             </div>
         )
     }
-    inputClick(){console.log("clicked")}
-    mouseOver(){console.log("Mouse over")}
 }
 
 export default App
