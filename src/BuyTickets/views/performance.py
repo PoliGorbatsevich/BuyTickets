@@ -22,30 +22,22 @@ async def create_performance(row_count: int,
                                       row_length=row_length,
                                       row_count=row_count,
                                       price=price)
-
-    return Response(code=200,
-                    status='Ok',
-                    message='Performance created successfully').dict(exclude_none=True)
+    print(_performance)
+    return _performance.id
 
 
 @router.get(path='/playbill/', dependencies=[Depends(auth_permission)])
 async def get_performances_by_date(date: datetime.date,
                                    service: PerformanceService = Depends()):
     _performance = service.get_performance_by_date(date=date)
-    return Response(code=200,
-                    status='Ok',
-                    message='Success Fetch all data',
-                    result=_performance).dict(exclude_none=True)
+    return _performance
 
 
 @router.get(path='/{performance_id}', dependencies=[Depends(auth_permission)])
 async def get_performance_by_id(performance_id: int,
                                 service: PerformanceService = Depends()):
     _performance = service.get_performance_by_id(performance_id=performance_id)
-    return Response(code=200,
-                    status='Ok',
-                    message='Success get data',
-                    result=_performance).dict(exclude_none=True)
+    return _performance
 
 
 @router.post(path='/{performance_id}/update', dependencies=[Depends(admin_manager_permission)])
@@ -72,7 +64,10 @@ async def delete_performance(performance_id: int,
 async def get_performance_tickets(performance_id: int,
                                   service: PerformanceService = Depends()):
     _tickets = service.get_performance_by_id(performance_id=performance_id).tickets
-    return Response(code=200,
-                    status='Ok',
-                    message='Success delete data',
-                    result=_tickets).dict(exclude_none=True)
+    return _tickets
+
+
+@router.get(path='/', response_model=list, dependencies=[Depends(auth_permission)])
+async def get_actual_performances(service: PerformanceService = Depends()):
+    _performances = service.get_actual_performances()
+    return _performances

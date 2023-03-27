@@ -23,7 +23,7 @@ class AuthService:
                 .filter(User.username == username)
                 .first())
         if not user:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Такого пользователя не существует")
         return user
 
     def get_user(self, username: str) -> User:
@@ -35,7 +35,7 @@ class AuthService:
         if not self._verify_password(password, user.hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect username or password",
+                detail="Неправильный пароль",
                 headers={"WWW-Authenticate": "Bearer"},
             )
         return user
@@ -81,7 +81,7 @@ class AuthService:
     def get_current_active_user(self, token: str) -> User:
         current_user = self.get_current_user(token)
         if not current_user.is_active:
-            raise HTTPException(status_code=400, detail="Inactive user")
+            raise HTTPException(status_code=400, detail="Пользователь был удален")
         return current_user
 
     def get_access_token(self, username: str, password: str) -> dict:
@@ -91,19 +91,26 @@ class AuthService:
             data={"sub": user.username},
             expires_delta=access_token_expires
         )
-        return {"access_token": access_token, "token_type": "bearer"}
+        return {"access_token": access_token,
+                "token_type": "bearer",
+                "role": user.role.value}
 
     def create_user(self, user_data: UserRegistrationSchema) -> User:
+        if len(user_data.password) < 6:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Пароль должен быть больше 6 символов")
         operation = (self.session.query(User)
                      .filter(User.username == user_data.username)
                      .first())
         if operation:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Пользователь с таким логином уже зарегистрирован")
         operation = (self.session.query(User)
                      .filter(User.email == user_data.email)
                      .first())
         if operation:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Пользователь с такой почтой уже зарегистрирован")
 
         user = User(username=user_data.username,
                     email=user_data.email,
@@ -114,14 +121,27 @@ class AuthService:
 
     def change_password(self, token: str, old_pass: str, new_pass: str, new_pass1: str):
         _user = self.get_current_active_user(token=token)
-        print(_user.hashed_password)
-        print(self._get_password_hash(old_pass))
         if not self._verify_password(old_pass, _user.hashed_password):
-            raise HTTPException(status_code=404, detail="Wrong old password")
+            raise HTTPException(status_code=404, detail="Старый пароль не совпадет")
+        if len(new_pass) < 6:
+            raise HTTPException(status_code=404, detail="Пароль должен быть больше 6 символов")
         if new_pass != new_pass1:
-            raise HTTPException(status_code=404, detail="New password 1 and new password 2 is not equal!")
+            raise HTTPException(status_code=404, detail="Новые пароли не совпадают")
         _user.hashed_password = self._get_password_hash(new_pass)
 
+        self.session.commit()
+        self.session.refresh(_user)
+        return _user
+
+    def get_tickets(self, token: str):
+        _user = self.get_current_active_user(token=token)
+        return _user.tickets
+
+    def top_up_balance(self, token: str, payment: int):
+        _user = self.get_current_active_user(token=token)
+        if payment <= 0:
+            raise HTTPException(status_code=400, detail="Нельзя пополнить баланс на сумму меньше 0")
+        _user.balance += payment
         self.session.commit()
         self.session.refresh(_user)
         return _user

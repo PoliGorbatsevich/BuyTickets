@@ -66,13 +66,13 @@ class TicketService:
                 place += 1
             row += 1
 
-    def remove_ticket(self, ticket_id: int, performance_id: int):
-        _ticket = self._get_ticket_by_performance_id(ticket_id=ticket_id, performance_id=performance_id)
+    def remove_ticket(self, ticket_id: int):
+        _ticket = self._get_ticket_by_id(ticket_id=ticket_id)
         self.db.delete(_ticket)
         self.db.commit()
 
-    def update_ticket(self, ticket_id: int, ticket: UpdateTicketSchema, performance_id: int) -> Ticket:
-        _ticket = self._get_ticket_by_performance_id(ticket_id=ticket_id, performance_id=performance_id)
+    def update_ticket(self, ticket_id: int, ticket: UpdateTicketSchema) -> Ticket:
+        _ticket = self._get_ticket_by_id(ticket_id=ticket_id)
         _ticket.price = ticket.price
         _ticket.row_number = ticket.row_number
         _ticket.place_number = ticket.place_number
@@ -80,11 +80,27 @@ class TicketService:
         self.db.refresh(_ticket)
         return _ticket
 
-    def buy_ticket(self, ticket_id: int, user_id: int, performance_id: int):
-        ticket = self._get_ticket_by_performance_id(ticket_id=ticket_id, performance_id=performance_id)
+    def buy_ticket(self, ticket: Ticket, user_id: int):
         if ticket.owner_id:
             raise HTTPException(status_code=404, detail="This ticket is already bought")
         ticket.owner_id = user_id
+        ticket.owner.balance -= ticket.price
+        self.db.commit()
+        self.db.refresh(ticket)
+        self.db.refresh(ticket.owner)
+        return ticket
+
+    def return_ticket(self, ticket: Ticket, index: float):
+        ticket.owner.balance += ticket.price * index
+        self.db.commit()
+        self.db.refresh(ticket.owner)
+
+        ticket.owner_id = None
         self.db.commit()
         self.db.refresh(ticket)
         return ticket
+
+
+
+
+

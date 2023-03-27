@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
 from BuyTickets.models import ticket, auth
 from BuyTickets.views.ticket import router as ticket_router
@@ -12,6 +13,19 @@ ticket.Base.metadata.create_all(bind=engine)
 auth.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+    "http://localhost:3000/user_profile",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(ticket_router)
 app.include_router(auth_router)
