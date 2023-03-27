@@ -29,6 +29,7 @@ async def create_performance(row_count: int,
 @router.get(path='/playbill/', dependencies=[Depends(auth_permission)])
 async def get_performances_by_date(date: datetime.date,
                                    service: PerformanceService = Depends()):
+
     _performance = service.get_performance_by_date(date=date)
     return _performance
 

@@ -13,6 +13,8 @@ class PerformanceService:
         self.db = session
 
     def get_performance_by_date(self, date: datetime.date):
+        if date < datetime.date.today():
+            raise HTTPException(status_code=404, detail="Дата введена некорректно")
         return self.db.query(Performance).filter(Performance.date == date).all()
 
     def _get_performance_by_id(self, performance_id: int):
