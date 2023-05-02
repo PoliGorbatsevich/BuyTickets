@@ -31,7 +31,7 @@ class UserProfilepage extends React.Component{
                 <div>
                     <main>
                         <div className="profile">
-                            <h1>Ваш рофиль</h1>
+                            <h1>Ваш профиль</h1>
                             <h2>Имя: {this.state.profile.username}</h2>
                             <h2>Почта: {this.state.profile.email}</h2>
                             <h2>Роль: {this.state.profile.role}</h2>
