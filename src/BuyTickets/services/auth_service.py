@@ -5,11 +5,12 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
+
 from BuyTickets.database import get_session
-from BuyTickets.models.auth import User
+from BuyTickets.models.auth import User, Transaction
 from BuyTickets.settings import settings
 from BuyTickets.schemas.auth import UserRegistrationSchema, TokenDataSchema
-from BuyTickets.enums import Role
+from BuyTickets.enums import Role, PaymentType, PaymentAccess
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -140,11 +141,26 @@ class AuthService:
     def top_up_balance(self, token: str, payment: int):
         _user = self.get_current_active_user(token=token)
         if payment <= 0:
+            self.session.add(Transaction(user_id=_user.id,
+                                         payment=payment,
+                                         description='Failed to top up the balance, got wrong integer.',
+                                         access=PaymentAccess.REJECTED,
+                                         payment_type=PaymentType.PLUS))
+            self.session.commit()
             raise HTTPException(status_code=400, detail="Нельзя пополнить баланс на сумму меньше 0")
+        self.session.add(Transaction(user_id=_user.id,
+                                     access=PaymentAccess.CONFIRMED,
+                                     payment=payment,
+                                     payment_type=PaymentType.PLUS,
+                                     description='Top up balance.'))
         _user.balance += payment
         self.session.commit()
         self.session.refresh(_user)
         return _user
+
+    def transaction_history(self, token: str) -> list:
+        user_id = self.get_current_active_user(token=token).id
+        return self.session.query(Transaction).filter(Transaction.user_id == user_id).all()
 
 
 class RoleChecker:

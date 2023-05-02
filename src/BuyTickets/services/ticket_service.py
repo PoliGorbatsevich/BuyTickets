@@ -1,9 +1,13 @@
+import datetime
+
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from BuyTickets.models.ticket import Ticket, Performance
 from BuyTickets.schemas.ticket import TicketSchema, CreateTicketSchema, UpdateTicketSchema
 from BuyTickets.database import get_session
+from BuyTickets.enums import PaymentAccess, PaymentType
+from BuyTickets.models.auth import User, Transaction
 
 
 class TicketService:
@@ -62,7 +66,7 @@ class TicketService:
                 _ticket = CreateTicketSchema(place_number=place,
                                              row_number=row,
                                              price=price)
-                self.create_ticket(_ticket, performance_id=performance_id,)
+                self.create_ticket(_ticket, performance_id=performance_id, )
                 place += 1
             row += 1
 
@@ -80,27 +84,99 @@ class TicketService:
         self.db.refresh(_ticket)
         return _ticket
 
-    def buy_ticket(self, ticket: Ticket, user_id: int):
+    def buy_ticket(self, ticket: Ticket, user: User):
+        if user.balance < ticket.price:
+            self.db.add(Transaction(user_id=user.id,
+                                    access=PaymentAccess.REJECTED,
+                                    payment=ticket.price,
+                                    payment_type=PaymentType.MINUS,
+                                    description='Failed to buy ticket. Not enough money.'))
+            raise HTTPException(status_code=400, detail="Not enough money")
+        if ticket.performance.date < datetime.date.today():
+            self.db.add(Transaction(user_id=user.id,
+                                    access=PaymentAccess.REJECTED,
+                                    payment=ticket.price,
+                                    payment_type=PaymentType.MINUS,
+                                    description='Failed to buy ticket. The performance has already passed.'))
+            raise HTTPException(status_code=400,
+                                detail="You cannot buy this ticket. The performance has already passed")
+        if ticket.performance.date == datetime.date.today():
+            if ticket.performance.time < datetime.time:
+                if ticket.performance.date < datetime.date.today():
+                    self.db.add(Transaction(user_id=user.id,
+                                            access=PaymentAccess.REJECTED,
+                                            payment=ticket.price,
+                                            payment_type=PaymentType.MINUS,
+                                            description='Failed to buy ticket. The performance has already passed.'))
+                raise HTTPException(status_code=400,
+                                    detail="You cannot buy this ticket. The performance has already passed")
         if ticket.owner_id:
+            if ticket.performance.date < datetime.date.today():
+                self.db.add(Transaction(user_id=user.id,
+                                        access=PaymentAccess.REJECTED,
+                                        payment=ticket.price,
+                                        payment_type=PaymentType.MINUS,
+                                        description='Failed to buy ticket. This ticket is already bought.'))
             raise HTTPException(status_code=404, detail="This ticket is already bought")
-        ticket.owner_id = user_id
+
+        self.db.add(Transaction(user_id=user.id,
+                                access=PaymentAccess.CONFIRMED,
+                                payment=ticket.price,
+                                payment_type=PaymentType.MINUS,
+                                description='Bought a ticket.'))
+        ticket.owner_id = user.id
         ticket.owner.balance -= ticket.price
         self.db.commit()
         self.db.refresh(ticket)
         self.db.refresh(ticket.owner)
         return ticket
 
-    def return_ticket(self, ticket: Ticket, index: float):
-        ticket.owner.balance += ticket.price * index
+    def return_ticket(self, ticket: Ticket, user: User):
+        index = 1
+        if ticket.owner_id != user.id:
+            self.db.add(Transaction(user_id=user.id,
+                                    payment=ticket.price,
+                                    description='Failed to return ticket, You dont have such ticket.',
+                                    access=PaymentAccess.REJECTED,
+                                    payment_type=PaymentType.PLUS))
+            self.db.commit()
+            raise HTTPException(status_code=400, detail="You dont have such ticket")
+        if ticket.performance.date < datetime.date.today():
+            self.db.add(Transaction(user_id=user.id,
+                                    payment=ticket.price,
+                                    description='Failed to return ticket, the performance has already passed.',
+                                    access=PaymentAccess.REJECTED,
+                                    payment_type=PaymentType.PLUS))
+            self.db.commit()
+            raise HTTPException(status_code=400,
+                                detail="You cannot return this ticket. The performance has already passed")
+
+        if ticket.performance.date > datetime.date.today():
+            index = 1
+        elif ticket.performance.date == datetime.date.today():
+            if ticket.performance.time > datetime.time:
+                index = 0.5
+            else:
+                self.db.add(Transaction(user_id=user.id,
+                                        payment=ticket.price,
+                                        description='Failed to return ticket, the performance has already passed.',
+                                        access=PaymentAccess.REJECTED,
+                                        payment_type=PaymentType.PLUS))
+                self.db.commit()
+                raise HTTPException(status_code=400,
+                                    detail="You cannot return this ticket. The performance has already passed")
+
+        ticket.owner.balance += int(ticket.price * index)
         self.db.commit()
         self.db.refresh(ticket.owner)
+
+        self.db.add(Transaction(user_id=ticket.owner_id,
+                                access=PaymentAccess.CONFIRMED,
+                                payment=int(ticket.price * index),
+                                payment_type=PaymentType.PLUS,
+                                description='Ticket returned.'))
 
         ticket.owner_id = None
         self.db.commit()
         self.db.refresh(ticket)
         return ticket
-
-
-
-
-

@@ -25,7 +25,7 @@ class Performance extends React.Component{
                     this.setState({editForm: !this.state.editForm})}}/>}
                 <div onClick={() =>{
                     this.setState({showTickets: !this.state.showTickets})}}>
-                    <h3>Название: {this.performance.name} Дата: {this.performance.date} Время: {this.performance.time}</h3>
+                    <h3>Название: {this.performance.name} Дата: {this.performance.date} Время: {this.performance.time.slice(0, 5)}</h3>
                     <p>Описание: {this.performance.description}</p>
                 </div>
                 {this.state.editForm && <PerformanceUpdateForm id={this.performance.id} onUpdate={this.props.onUpdate}/>}

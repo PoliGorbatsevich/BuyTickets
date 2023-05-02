@@ -42,7 +42,7 @@ class Performancepage extends React.Component {
                     <aside>
                         {storage.getRole() === "admin" &&
                         <PerformanceForm onAdd={this.addPerformance}/>}
-                        <FilterForm onFind={this.findByDate} onClear={this.getPerformances}/>}
+                        <FilterForm onFind={this.findByDate} onClear={this.getPerformances}/>
                     </aside>
                 </div>
 

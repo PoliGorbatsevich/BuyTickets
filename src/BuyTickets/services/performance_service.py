@@ -53,6 +53,7 @@ class PerformanceService:
             raise HTTPException(status_code=404, detail="Данные введены некорректно!")
         _performance = self._get_performance_by_id(performance_id=performance_id)
         _performance.name = performance.name
+        _performance.description = performance.description
         _performance.date = performance.date
         _performance.time = performance.time
         self.db.commit()

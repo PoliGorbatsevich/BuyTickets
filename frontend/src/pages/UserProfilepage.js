@@ -143,13 +143,16 @@ class MyTicket extends React.Component{
                     axiosInstance.get("/performance/"+this.props.ticket.performance_id)
                         .then((res) => {
                             console.log(res.data)
+                            res.data.time = res.data.time.slice(0, 5);
                             this.setState({performance:res.data})
                         })
                     }}/>
-                {this.state.show_performance && <div><h3>Название: {this.state.performance.name}</h3>
+                {this.state.show_performance && <div>
+                    <h3>Название: {this.state.performance.name}</h3>
                     <h4>Дата: {this.state.performance.date}</h4>
                     <h4>Время: {this.state.performance.time}</h4>
-                    <p>Описание: {this.state.performance.description}</p><br/></div>}
+                    <p>Описание: {this.state.performance.description}</p><br/>
+                </div>}
                 <h3>ряд: {this.props.ticket.row_number} место: {this.props.ticket.place_number}</h3>
                 <p>цена: {this.props.ticket.price}</p>
             </div>

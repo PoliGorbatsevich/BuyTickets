@@ -49,13 +49,11 @@ def return_ticket(ticket_id: int,
                   ticket_service: TicketService = Depends()):
     user = service.get_current_active_user(token)
     ticket = ticket_service.get_ticket_by_id(ticket_id=ticket_id)
-    if ticket.owner_id != user.id:
-        raise HTTPException(status_code=400, detail="You dont have such ticket")
-    if ticket.performance.date > datetime.date.today():
-        ticket = ticket_service.return_ticket(ticket=ticket, index=1)
-        return ticket
-    if ticket.performance.date == datetime.date.today():
-        if ticket.performance.time > datetime.time:
-            ticket = ticket_service.return_ticket(ticket=ticket, index=0.5)
-            return ticket
-    raise HTTPException(status_code=400, detail="You cannot return this ticket. The performance has already passed")
+    return ticket_service.return_ticket(ticket=ticket, user=user)
+
+
+@router.get('/transaction_history/', response_model=list, dependencies=[Depends(auth_permission)])
+def transaction_history(service: AuthService = Depends(),
+                        token: str = Depends(settings.oauth2_scheme)):
+    return service.transaction_history(token=token)
+

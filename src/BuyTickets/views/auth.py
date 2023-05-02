@@ -25,4 +25,3 @@ def get_token(form_data: OAuth2PasswordRequestForm = Depends(),
 def read_users_me(service: AuthService = Depends(),
                   token: str = Depends(settings.oauth2_scheme)):
     return service.get_current_active_user(token)
-

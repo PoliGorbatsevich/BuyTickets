@@ -48,6 +48,7 @@ class DropdownMenu extends React.Component{
                         {this.state.isLogined &&
                         <div>
                             <li className="dropdown-menu-item" onClick={this.toggleMenu}><NavLink to="/user_profile">мой профиль</NavLink></li>
+                            <li className="dropdown-menu-item" onClick={this.toggleMenu}><NavLink to="/transaction_history">История транзакций</NavLink></li>
                             <li className="dropdown-menu-item"><NavLink to="/auth" onClick={this.logOut}>выйти</NavLink></li>
                         </div>}
                         {!this.state.isLogined &&

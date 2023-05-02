@@ -58,13 +58,5 @@ async def buy_ticket(ticket_id: int,
                      token: str = Depends(settings.oauth2_scheme)):
     user = auth.get_current_active_user(token=token)
     ticket = service.get_ticket_by_id(ticket_id=ticket_id)
-    if user.balance < ticket.price:
-        raise HTTPException(status_code=400, detail="Not enough money")
-    if ticket.performance.date > datetime.date.today():
-        ticket = service.buy_ticket(ticket=ticket, user_id=user.id)
-        return ticket
-    if ticket.performance.date == datetime.date.today():
-        if ticket.performance.time > datetime.time:
-            ticket = service.buy_ticket(ticket=ticket, user_id=user.id)
-            return ticket
-    raise HTTPException(status_code=400,  detail="You cannot buy this ticket. The performance has already passed")
+    ticket = service.buy_ticket(ticket=ticket, user=user)
+    return ticket
