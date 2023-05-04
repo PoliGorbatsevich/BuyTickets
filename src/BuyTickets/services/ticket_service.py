@@ -91,6 +91,7 @@ class TicketService:
                                     payment=ticket.price,
                                     payment_type=PaymentType.MINUS,
                                     description='Failed to buy ticket. Not enough money.'))
+            self.db.commit()
             raise HTTPException(status_code=400, detail="Not enough money")
         if ticket.performance.date < datetime.date.today():
             self.db.add(Transaction(user_id=user.id,
@@ -98,6 +99,7 @@ class TicketService:
                                     payment=ticket.price,
                                     payment_type=PaymentType.MINUS,
                                     description='Failed to buy ticket. The performance has already passed.'))
+            self.db.commit()
             raise HTTPException(status_code=400,
                                 detail="You cannot buy this ticket. The performance has already passed")
         if ticket.performance.date == datetime.date.today():
@@ -108,6 +110,7 @@ class TicketService:
                                             payment=ticket.price,
                                             payment_type=PaymentType.MINUS,
                                             description='Failed to buy ticket. The performance has already passed.'))
+                    self.db.commit()
                 raise HTTPException(status_code=400,
                                     detail="You cannot buy this ticket. The performance has already passed")
         if ticket.owner_id:
@@ -117,6 +120,7 @@ class TicketService:
                                         payment=ticket.price,
                                         payment_type=PaymentType.MINUS,
                                         description='Failed to buy ticket. This ticket is already bought.'))
+                self.db.commit()
             raise HTTPException(status_code=404, detail="This ticket is already bought")
 
         self.db.add(Transaction(user_id=user.id,

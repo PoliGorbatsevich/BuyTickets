@@ -5,6 +5,7 @@ services:
     container_name: "app"
     hostname: BuyTickets
     image: app
+    depends_on: [db]
     build:
       context: BuyTickets
       dockerfile: Dockerfile
@@ -22,20 +23,22 @@ services:
       - POSTGRES_DB = postgres
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+#      - postgres_data:/var/lib/postgresql/data/
 
-  test_db:
-    hostname: test_host
-    image: postgres
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER = postgres
-      - POSTGRES_PASSWORD = postgres
-      - POSTGRES_DB = test_db
-      - POSTGRES_HOST_AUTH_METHOD=trust
-    volumes:
-      - postgres_data_test:/var/lib/postgresql/data/
+
+#  test_db:
+#    hostname: test_host
+#    image: postgres
+#    ports:
+#      - "5432:5432"
+#    environment:
+#      - POSTGRES_USER = postgres
+#      - POSTGRES_PASSWORD = postgres
+#      - POSTGRES_DB = test_db
+#      - POSTGRES_HOST_AUTH_METHOD=trust
+#    volumes:
+#      - postgres_data_test:/var/lib/postgresql/data/
 
 volumes:
   postgres_data:
